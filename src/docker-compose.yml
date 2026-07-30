@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: banking_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: banking_db
+      POSTGRES_USER: bank_admin
+      POSTGRES_PASSWORD: secure_password_123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Senior Touch: Database တကယ် run/no-run သိနိုင်ရန် Healthcheck ထည့်ခြင်း
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bank_admin -d banking_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

@@ -1,0 +1,48 @@
+# ==========================================
+# Core Banking Project .gitignore
+# ==========================================
+
+# Build Outputs (Maven / Gradle)
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+#  VS Code Specific
+.vscode/
+*.code-workspace
+
+# 5. OS Specific (Windows)
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+
+# 6. Logs & Caches
+*.log
+logs/
+*.cache
+.scannerwork/
+
+# 7. Secrets & Environment Variables 
+# Production / Local မှာသုံးမယ့် လျှို့ဝှက် Password တွေ Git ပေါ်မရောက်စေဖို့
+.env
+.env.local
+.env.development
+*.pem
+*.key
+*.p12
+*.jks
+
+# 8. Temporary & Backup Files
+*.bak
+*.swp
+*~
+*.tmp
