@@ -6,9 +6,9 @@ spring:
     name: core-banking
     
   datasource:
-    url: jdbc:postgresql://localhost:5432/banking_db
+    url: jdbc:postgresql://localhost:5433/banking_db
     username: bank_admin
-    password: secure_password_123
+    password: postgres455
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10

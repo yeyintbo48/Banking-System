@@ -8,12 +8,12 @@ services:
     environment:
       POSTGRES_DB: banking_db
       POSTGRES_USER: bank_admin
-      POSTGRES_PASSWORD: secure_password_123
+      POSTGRES_PASSWORD: postgres455
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # Senior Touch: Database တကယ် run/no-run သိနိုင်ရန် Healthcheck ထည့်ခြင်း
+    # Database တကယ် run/no-run သိနိုင်ရန် Healthcheck ထည့်ခြင်း
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U bank_admin -d banking_db"]
       interval: 5s
