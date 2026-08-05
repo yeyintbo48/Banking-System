@@ -19,9 +19,10 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.banking.core.dtos.TransferRequest;
 import com.banking.core.entity.Account;
 import com.banking.core.entity.Transaction;
-import com.banking.core.enums.TransferRequest;
 import com.banking.core.exception.InsufficientBalanceException;
 import com.banking.core.repository.AccountRepository;
 import com.banking.core.repository.JournalEntryRepository;

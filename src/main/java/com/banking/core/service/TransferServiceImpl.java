@@ -2,13 +2,13 @@ package com.banking.core.service;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
+import com.banking.core.dtos.TransferRequest;
 import com.banking.core.entity.Account;
 import com.banking.core.entity.JournalEntry;
 import com.banking.core.entity.Transaction;
 import com.banking.core.enums.EntryType;
 import com.banking.core.enums.TransactionStatus;
 import com.banking.core.enums.TransactionType;
-import com.banking.core.enums.TransferRequest;
 import com.banking.core.exception.AccountNotFoundException;
 import com.banking.core.exception.InsufficientBalanceException;
 import com.banking.core.repository.AccountRepository;
@@ -28,13 +28,13 @@ public class TransferServiceImpl implements TransferService{
     @Transactional
     public Transaction transfer(TransferRequest request){
         Account fromAccount = accountRepository.findByAccountNumber(request.fromAccountNumber())
-            .orElseThrow(()-> new AccountNotFoundException("Sender Account Not found" + request.fromAccountNumber()));
+            .orElseThrow(()-> new AccountNotFoundException("Sender Account Not found: " + request.fromAccountNumber()));
 
         Account toAccount = accountRepository.findByAccountNumber(request.toAccountNumber())
-            .orElseThrow(()-> new AccountNotFoundException("Receiver Account Not found:" + request.toAccountNumber()));
+            .orElseThrow(()-> new AccountNotFoundException("Receiver Account Not found: " + request.toAccountNumber()));
 
         if(fromAccount.getBalance().compareTo(request.amount())< 0){
-            throw new InsufficientBalanceException("Insufficient Balance in account:" + fromAccount.getAccountNumber());
+            throw new InsufficientBalanceException("Insufficient Balance in account: " + fromAccount.getAccountNumber());
         }
 
         Transaction transaction = Transaction.builder()
