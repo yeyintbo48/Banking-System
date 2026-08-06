@@ -10,6 +10,7 @@ import com.banking.core.enums.EntryType;
 import com.banking.core.enums.TransactionStatus;
 import com.banking.core.enums.TransactionType;
 import com.banking.core.exception.AccountNotFoundException;
+import com.banking.core.exception.DuplicateTransactionException;
 import com.banking.core.exception.InsufficientBalanceException;
 import com.banking.core.repository.AccountRepository;
 import com.banking.core.repository.JournalEntryRepository;
@@ -27,6 +28,11 @@ public class TransferServiceImpl implements TransferService{
     @Override
     @Transactional
     public Transaction transfer(TransferRequest request){
+
+        if(transactionRepository.findByReferenceId(request.referenceId()).isPresent()){
+            throw new DuplicateTransactionException("Transaction with referenceID: " + request.referenceId() + "already exists");
+        }
+        
         Account fromAccount = accountRepository.findByAccountNumber(request.fromAccountNumber())
             .orElseThrow(()-> new AccountNotFoundException("Sender Account Not found: " + request.fromAccountNumber()));
 

@@ -1,0 +1,1 @@
+UPDATE accounts SET balance = 10000.00 WHERE account_number = 'ACC-001';
