@@ -30,7 +30,7 @@ public class TransferServiceImpl implements TransferService{
     public Transaction transfer(TransferRequest request){
 
         if(transactionRepository.findByReferenceId(request.referenceId()).isPresent()){
-            throw new DuplicateTransactionException("Transaction with referenceID: " + request.referenceId() + "already exists");
+            throw new DuplicateTransactionException("Transaction with referenceID: " + request.referenceId() + " already exists");
         }
         
         Account fromAccount = accountRepository.findByAccountNumber(request.fromAccountNumber())

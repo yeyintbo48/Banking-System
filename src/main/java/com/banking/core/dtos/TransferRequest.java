@@ -13,10 +13,10 @@ public record TransferRequest(
     String fromAccountNumber,
 
     @NotNull(message = "Amount is required")
-    @Positive(message = "Trnasfer amount must be greater than zero")
+    @Positive(message = "Tranasfer amount must be greater than zero")
     BigDecimal amount,
 
-    @NotBlank(message = "ReferenceId(Idempontency)key is required")
+    @NotBlank(message = "ReferenceId (Idempotency) key is required")
     String referenceId,
     
     String description

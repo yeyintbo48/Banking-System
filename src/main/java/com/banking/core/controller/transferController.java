@@ -1,5 +1,7 @@
 package com.banking.core.controller;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.banking.core.dtos.TransferRequest;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/v1/transfers")
 @RequiredArgsConstructor
 @Tag(name = "Transfer API",description = "Core banking fund transfer operations")
-public class transferController {
+public class TransferController {
     private final TransferService transferService;
 
     @Operation(summary = "Initiate a fund transfer",description = "Transfers money between two accounts using a double-entry ledger entry system.")
