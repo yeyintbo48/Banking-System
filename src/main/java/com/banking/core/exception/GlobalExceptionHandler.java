@@ -19,6 +19,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,ex.getMessage());
         problemDetail.setTitle("Duplicate Transaction");
         problemDetail.setType(URI.create("http://api.banking.com/errors/duplicate-transaction"));
+        problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
     }
     
@@ -41,20 +42,6 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
     }
-    
-    //Dto validation Exception
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex){
-        String errors = ex.getBindingResult().getFieldErrors().stream()
-            .map(error -> error.getField() + ":" + error.getDefaultMessage())
-            .collect(Collectors.joining(","));
-
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errors);
-            problemDetail.setTitle("Validation Failed!");
-            problemDetail.setType(URI.create("http://api.banking.com/errors/validation-failed"));
-            problemDetail.setProperty("timestamp",Instant.now());
-            return problemDetail;
-    }
 
     //တစ်ပြိုင်နက်တည်း ငွေလွှဲမှုကြောင့် Lock ဖြစ်သွားတဲ့ Error (Concurrency - 409 Conflict)
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
@@ -62,6 +49,41 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "System is currently processing another transaction for this account,Please try again");
         problemDetail.setTitle("Transaction Conflict");
         problemDetail.setType(URI.create("http://api.banking.com/errors/concurrency-conflict"));
+        problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
+    }
+
+    //Invalid Argument Exception (Self-transfer,Concurrency Mismatch)(400 BadRequest)
+    @ExceptionHandler (IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex){
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Invalid Request Argument");
+        problemDetail.setType(URI.create("http://api.banking.com/errors/invalid-argument"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    //Invalid Account State(account FROZEN or ClOSED)(409 Conflict)
+    @ExceptionHandler (IllegalStateException.class)
+    public ProblemDetail handleIllegalStateException(IllegalStateException ex){
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle("Invalid Account State");
+        problemDetail.setType(URI.create("http://api.banking.com/errors/invalid-account-state"));
+        problemDetail.setProperty("timestamp",Instant.now());
+        return problemDetail;
+    }
+
+    //Dto validation Exception(400 Bad Request)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex){
+        String errors = ex.getBindingResult().getFieldErrors().stream()
+            .map(error ->error.getDefaultMessage())
+            .collect(Collectors.joining(","));
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errors);
+            problemDetail.setTitle("Validation Failed!");
+            problemDetail.setType(URI.create("http://api.banking.com/errors/validation-failed"));
+            problemDetail.setProperty("timestamp",Instant.now());
+            return problemDetail;
     }
 }

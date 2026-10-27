@@ -62,5 +62,5 @@ public class Account {
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private ZonedDateTime updatedUp;
+    private ZonedDateTime updatedAt;
 }

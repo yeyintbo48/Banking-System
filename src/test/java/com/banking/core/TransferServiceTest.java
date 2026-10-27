@@ -19,10 +19,11 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
-
 import com.banking.core.dtos.TransferRequest;
 import com.banking.core.entity.Account;
 import com.banking.core.entity.Transaction;
+import com.banking.core.enums.AccountStatus;
+import com.banking.core.exception.DuplicateTransactionException;
 import com.banking.core.exception.InsufficientBalanceException;
 import com.banking.core.repository.AccountRepository;
 import com.banking.core.repository.JournalEntryRepository;
@@ -42,7 +43,6 @@ public class TransferServiceTest {
 
     @InjectMocks
     private TransferServiceImpl TransferService;
-
     private Account senderAccount;
     private Account receiverAccount;
     private TransferRequest request;
@@ -93,6 +93,7 @@ public class TransferServiceTest {
     void shouldThrowExceptionWhenInsufficientBalance(){
         //Arrange
         senderAccount.setBalance(new BigDecimal("1000.00"));
+        when(transactionRepository.findByReferenceId(request.referenceId())).thenReturn(Optional.empty());
         when(accountRepository.findByAccountNumber("ACC-001")).thenReturn(Optional.of(senderAccount));
         when(accountRepository.findByAccountNumber("ACC-002")).thenReturn(Optional.of(receiverAccount));
 
@@ -101,7 +102,57 @@ public class TransferServiceTest {
             TransferService.transfer(request);
         });
 
-        assertTrue(exception.getMessage().contains("Insufficient Balance in account:ACC-001"));
+        assertTrue(exception.getMessage().contains("Insufficient Balance in account: ACC-001"));
+        verify(transactionRepository,never()).save(any(Transaction.class));
+        verify(journalEntryRepository,never()).saveAll(anyList());
+    }
+
+    @Test 
+    void shouldThrowExceptionWhenSelfTrnasfer(){
+        //Arrange
+        TransferRequest selfTransferRequest = new TransferRequest(
+            "ACC:001", 
+            "ACC:001", 
+            new BigDecimal("500.00"), 
+            UUID.randomUUID().toString(), 
+            "Self transfer attempt");
+
+            //Act & Assert
+            assertThrows(IllegalArgumentException.class,() ->{
+                TransferService.transfer(selfTransferRequest);
+            });
+
+            verify(accountRepository,never()).findByAccountNumber(any());
+            verify(transactionRepository,never()).save(any(Transaction.class));
+    }
+
+    @Test 
+    void shouldThrowExceptionWhenDuplicateReferenceId(){
+        //Arrange
+        when(transactionRepository.findByReferenceId(request.referenceId()))
+        .thenReturn(Optional.of(Transaction.builder().referenceId(request.referenceId()).build()));
+
+        //Act & Assert
+        assertThrows(DuplicateTransactionException.class,() ->{
+            TransferService.transfer(request);
+        });
+
+        verify(accountRepository,never()).findByAccountNumber(any());
+        verify(transactionRepository,never()).save(any(Transaction.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSenderAccountIsFrozen(){
+        //Arrange
+        senderAccount.setStatus(AccountStatus.FROZEN);
+        when(transactionRepository.findByReferenceId(request.referenceId())).thenReturn(Optional.empty());
+        when(accountRepository.findByAccountNumber("ACC-001")).thenReturn(Optional.of(senderAccount));
+        when(accountRepository.findByAccountNumber("ACC-002")).thenReturn(Optional.of(receiverAccount));
+
+        //Act & Assert
+        assertThrows(IllegalStateException.class,() ->{
+            TransferService.transfer(request);
+        });
 
         verify(transactionRepository,never()).save(any(Transaction.class));
         verify(journalEntryRepository,never()).saveAll(anyList());
